@@ -1,8 +1,8 @@
-import scipy
+iimport scipy
 import numpy
 import numpy as np
 
-l=2
+l=3
 n=l*l
 arr=[]
 
@@ -21,14 +21,14 @@ for i in range(2 ** n):
        		arr.append(a[k+m])
        k=k+l
 
-    po.write("#")
+    po.write("#\n")
     
 
 
 arr2=[]
 count = 0
 #Add rows to 2d array to form a plane type structure
-for i in xrange(0, len(arr), 2):
+for i in xrange(0, len(arr), l):
 	arr2.append([])
 	for j in range(0, l):
 		arr2[count].append(arr[i+j])
