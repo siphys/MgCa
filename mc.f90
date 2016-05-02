@@ -1,7 +1,7 @@
 module constants
 implicit none
 integer,parameter:: dp=selected_real_kind(15,300)
-integer,parameter:: l=3 !size of plane lxl
+integer,parameter:: l=6 !size of plane lxl
 integer,parameter:: iter=1e3 !number of iterations
 end module
 
@@ -24,13 +24,13 @@ i=1
 do while(i<=iter) !do for a number of iterations 
     !!!!!!!switch both a Mg and Ca at two random points on the lattice!!!!
     call RANDOM_NUMBER(r)
-    x_0=(2*l)*r+1 !random x pos on lattice
+    x_0=(l)*r+1 !random x pos on lattice
     call RANDOM_NUMBER(r)
     y_0=l*r+1!random y
     if( lattice(x_0,y_0) .eq. 0)then
         do while(lattice(x_0,y_0) .eq. 0)!do until atom is not oxygen
             call RANDOM_NUMBER(r)
-            x_0=(2*l)*r+1 
+            x_0=(l)*r+1 
             call RANDOM_NUMBER(r)
             y_0=l*r+1
         end do 
@@ -38,13 +38,13 @@ do while(i<=iter) !do for a number of iterations
     nn_old0=nn(x_0,y_0)!number of atoms of same type neighbouring before switch
  
     call RANDOM_NUMBER(r)
-    x_1=(2*l)*r+1 !second atom to be switched
+    x_1=(l)*r+1 !second atom to be switched
     call RANDOM_NUMBER(r)
     y_1=l*r+1
     if( (lattice(x_1,y_1) .eq. 0 ).or. (lattice(x_1,y_1) .eq. lattice(x_0,y_0)) )then!if atom is not opposite the first chosen
         do while((lattice(x_1,y_1) .eq. 0 ).or. (lattice(x_1,y_1) .eq. lattice(x_0,y_0)) )!do until atom opposite the first switch is found
             call RANDOM_NUMBER(r)
-            x_1=(2*l)*r+1 !random x pos on lattice
+            x_1=(l)*r+1 !random x pos on lattice
             call RANDOM_NUMBER(r)
             y_1=l*r+1
         end do 
@@ -77,44 +77,63 @@ end do
 
 contains
 function nn(a,b)
-integer::a,b,nn
+integer::a,b,k,nn
 nn=0
-if( (a+1) > 2*l)then
-   if ( lattice(a,b) == lattice(1,b))then
-        nn=nn+1
-   end if
-else
-   if ( lattice(a,b) == lattice(a+1,b))then
-      nn=nn+1
-   end if
+
+k=a+1
+if (k > l)then
+  k=1
 end if
-if( (a-1) < 0)then
-   if ( lattice(a,b) == lattice(2*l,b))then
-        nn=nn+1
+do while(lattice(k,b) == 0)!make sure to skip oxygen
+   k=k+1
+   if (k > l)then
+      k=1
    end if
-else
-   if ( lattice(a,b) == lattice(a-1,b))then
-      nn=nn+1
-   end if
+end do
+if( lattice(a,b) == lattice(k,b))then
+  nn=nn+1
 end if
-if( (b+1) > l)then
-   if ( lattice(a,b) == lattice(a,1))then
-        nn=nn+1
-   end if
-else
-   if ( lattice(a,b) == lattice(a,b+1))then
-      nn=nn+1
-   end if
+k=a-1
+if (k < 0)then
+  k=l
 end if
-if( (b-1) < 0)then
-   if ( lattice(a,b) == lattice(a,l))then
-        nn=nn+1
+do while(lattice(k,b) == 0)
+   k=k-1
+   if (k < 0)then
+      k=l
    end if
-else
-   if ( lattice(a,b) == lattice(a,b-1))then
-      nn=nn+1
-   end if
+end do
+if( lattice(a,b) == lattice(k,b))then
+  nn=nn+1
 end if
+
+k=b+1
+if (k > l)then
+  k=1
+end if
+do while(lattice(a,k) == 0)
+   k=k+1
+   if (k > l)then
+      k=1
+   end if
+end do
+if( lattice(a,b) == lattice(a,k))then
+  nn=nn+1
+end if
+k=b-1
+if (k < 0)then
+  k=l
+end if
+do while(lattice(a,k) == 0)
+   k=k-1
+   if (k < 0)then
+      k=l
+   end if
+end do
+if( lattice(a,b) == lattice(a,k))then
+  nn=nn+1
+end if
+
 end function
 
 end subroutine
@@ -133,13 +152,13 @@ character(2)::atom
 real(kind=dp)::r
 integer,dimension(:,:),allocatable :: lattice
 
-allocate (lattice(2*l,l))
+allocate (lattice(l,l))
 
 open (unit=15,file='atoms.dat')
 i=1
 j=1!!Set up array for the given surface 
 do while(i<=l)
-   do while(j<=2*l)   
+   do while(j<=l)   
       read(15,*)atom
       if (atom == 'Mg')then
          lattice(j,i)=1
