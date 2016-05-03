@@ -1,8 +1,8 @@
 module constants
 implicit none
 integer,parameter:: dp=selected_real_kind(15,300)
-integer,parameter:: l=20 !size of plane lxl
-integer,parameter:: iter=1 !number of iterations
+integer,parameter:: l=5 !size of plane lxl
+integer,parameter:: iter=100000 !number of iterations
 end module
 
 
@@ -22,6 +22,7 @@ integer::i,j,k,x_1,y_1,x_0,y_0,nn_old0,nn_new0,nn_old1,nn_new1,m
 i=1
 
 do while(i<=iter) !do for a number of iterations 
+    m=0
     do while(m<=l**2)
         !!!!!!!switch both a Mg and Ca at two random points on the lattice!!!!
         call RANDOM_NUMBER(r)
@@ -65,7 +66,6 @@ do while(i<=iter) !do for a number of iterations
                   lattice(x_1,y_1)=-lattice(x_1,y_1)
              end if
         end if
-
         m=m+1
    end do
    
